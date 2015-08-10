@@ -21,6 +21,14 @@ public class TouchSwipeDetector : GestureDetector
 			new List<TouchPhase> { TouchPhase.Began, 
 								   TouchPhase.Stationary, 
 								   TouchPhase.Moved };
+
+	private static readonly IDictionary<SwipeDirection, Vector2> _directions =
+		new Dictionary<SwipeDirection, Vector2> (){ 
+			{SwipeDirection.Up, Vector2.up},
+			{SwipeDirection.Down, Vector2.down},
+			{SwipeDirection.Left, Vector2.left},
+			{SwipeDirection.Right, Vector2.right}
+	};
 	
 	// Use this for initialization
 	void Start ()
@@ -97,8 +105,10 @@ public class TouchSwipeDetector : GestureDetector
 		} else if (!_touchDown) {
 			State = GestureState.Complete;
 			EndPoint = CurrentPoint;
+			SwipeDirection = getSwipeDirection (StartPoint, EndPoint);
 		} else {
 			CurrentPoint = _touchHistory [_touchHistory.Count - 1].Position;
+			SwipeDirection = getSwipeDirection (StartPoint, CurrentPoint);
 			Continue ();
 		}
 	}
@@ -135,6 +145,23 @@ public class TouchSwipeDetector : GestureDetector
 	{
 		State = GestureState.Inactive;
 		StartPoint = CurrentPoint = EndPoint = Vector2.zero;
+	}
+
+	protected static SwipeDirection getSwipeDirection (Vector2 startPoint, Vector2 endPoint)
+	{
+		var swipeVector = endPoint - startPoint;
+		var minAngle = 180.0F;
+		var swipeDirection = SwipeDirection.Up;
+
+		foreach (var dirPair in _directions) {
+			var angle = Vector2.Angle (swipeVector, dirPair.Value);
+			if (angle < minAngle) {
+				minAngle = angle;
+				swipeDirection = dirPair.Key;
+			}
+		}
+
+		return swipeDirection;
 	}
 
 }
