@@ -40,9 +40,15 @@ public class TouchLongPressDetector : GestureDetector
 			checkForCompletion ();
 			break;
 		case GestureState.Failed:
+			if (getNumberOfTouchesDown () == 0) {
+				reset ();
+			}
+			break;
 		case GestureState.Complete:
 			if (getNumberOfTouchesDown () == 0) {
 				reset ();
+			} else {
+				Continue ();
 			}
 			break;
 		}
